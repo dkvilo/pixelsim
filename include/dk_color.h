@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 #endif
 
+#define C64_COLOR_COUNT 32
 #define C64_BLACK (SDL_Color){ 0, 0, 0, 255 }
 #define C64_WHITE (SDL_Color){ 255, 255, 255, 255 }
 #define C64_RED (SDL_Color){ 136, 0, 0, 255 }
@@ -21,7 +22,32 @@
 #define C64_LIGHT_GREEN (SDL_Color){ 170, 255, 102, 255 }
 #define C64_LIGHT_BLUE (SDL_Color){ 0, 136, 255, 255 }
 #define C64_LIGHT_GREY (SDL_Color){ 187, 187, 187, 255 }
-#define C64_COLOR_COUNT 16
+#define C64_PINK (SDL_Color){ 255, 119, 255, 255 }
+#define C64_OLIVE (SDL_Color){ 51, 51, 0, 255 }
+#define C64_BRIGHT_GREEN (SDL_Color){ 0, 255, 0, 255 }
+#define C64_DARK_BLUE (SDL_Color){ 0, 0, 51, 255 }
+#define C64_DARK_RED (SDL_Color){ 51, 0, 0, 255 }
+#define C64_DARK_PURPLE (SDL_Color){ 51, 0, 51, 255 }
+#define C64_DARK_GREEN (SDL_Color){ 0, 51, 0, 255 }
+#define C64_DARK_CYAN (SDL_Color){ 0, 51, 51, 255 }
+#define C64_DARK_YELLOW (SDL_Color){ 51, 51, 0, 255 }
+#define C64_DARK_ORANGE (SDL_Color){ 51, 51, 0, 255 }
+#define C64_LIGHT_ORANGE (SDL_Color){ 255, 136, 85, 255 }
+#define C64_LIGHT_YELLOW (SDL_Color){ 255, 255, 102, 255 }
+#define C64_LIGHT_PURPLE (SDL_Color){ 255, 102, 255, 255 }
+#define C64_LIGHT_BROWN (SDL_Color){ 153, 102, 51, 255 }
+#define C64_LIGHT_PINK (SDL_Color){ 255, 153, 204, 255 }
+#define C64_LIGHT_OLIVE (SDL_Color){ 153, 153, 51, 255 }
+
+// #define C64_LIGHT_BRIGHT_GREEN (SDL_Color){ 51, 255, 51, 255 }
+// #define C64_LIGHT_DARK_BLUE (SDL_Color){ 51, 51, 153, 255 }
+// #define C64_LIGHT_DARK_RED (SDL_Color){ 153, 51, 51, 255 }
+// #define C64_LIGHT_DARK_PURPLE (SDL_Color){ 153, 51, 153, 255 }
+// #define C64_LIGHT_DARK_GREEN (SDL_Color){ 51, 153, 51, 255 }
+// #define C64_LIGHT_DARK_CYAN (SDL_Color){ 51, 153, 153, 255 }
+// #define C64_LIGHT_DARK_YELLOW (SDL_Color){ 153, 153, 51, 255 }
+// #define C64_LIGHT_DARK_ORANGE (SDL_Color){ 153, 153, 51, 255 }
+
 
 void
 load_colors(SDL_Color* buffer);
@@ -45,6 +71,30 @@ SDL_Color C64_COLORS[C64_COLOR_COUNT] = {
   C64_LIGHT_GREEN,
   C64_LIGHT_BLUE,
   C64_LIGHT_GREY,
+  C64_PINK,
+  C64_OLIVE,
+  C64_BRIGHT_GREEN,
+  C64_DARK_BLUE,
+  C64_DARK_RED,
+  C64_DARK_PURPLE,
+  C64_DARK_GREEN,
+  C64_DARK_CYAN,
+  C64_DARK_YELLOW,
+  C64_DARK_ORANGE,
+  C64_LIGHT_ORANGE,
+  C64_LIGHT_YELLOW,
+  C64_LIGHT_PURPLE,
+  C64_LIGHT_BROWN,
+  C64_LIGHT_PINK,
+  C64_LIGHT_OLIVE,
+  // C64_LIGHT_BRIGHT_GREEN,
+  // C64_LIGHT_DARK_BLUE,
+  // C64_LIGHT_DARK_RED,
+  // C64_LIGHT_DARK_PURPLE,
+  // C64_LIGHT_DARK_GREEN,
+  // C64_LIGHT_DARK_CYAN,
+  // C64_LIGHT_DARK_YELLOW,
+  // C64_LIGHT_DARK_ORANGE
 };
 
 void
@@ -66,6 +116,31 @@ load_colors(SDL_Color* buffer)
   buffer[13] = C64_LIGHT_GREEN;
   buffer[14] = C64_LIGHT_BLUE;
   buffer[15] = C64_LIGHT_GREY;
+  buffer[16] = C64_PINK;
+  buffer[17] = C64_OLIVE;
+  buffer[18] = C64_BRIGHT_GREEN;
+  buffer[19] = C64_DARK_BLUE;
+  buffer[20] = C64_DARK_RED;
+  buffer[21] = C64_DARK_PURPLE;
+  buffer[22] = C64_DARK_GREEN;
+  buffer[23] = C64_DARK_CYAN;
+  buffer[24] = C64_DARK_YELLOW;
+  buffer[25] = C64_DARK_ORANGE;
+  buffer[26] = C64_LIGHT_ORANGE;
+  buffer[27] = C64_LIGHT_YELLOW;
+  buffer[28] = C64_LIGHT_PURPLE;
+  buffer[29] = C64_LIGHT_BROWN;
+  buffer[30] = C64_LIGHT_PINK;
+  buffer[31] = C64_LIGHT_OLIVE;
+  // buffer[32] = C64_LIGHT_BRIGHT_GREEN;
+  // buffer[33] = C64_LIGHT_DARK_BLUE;
+  // buffer[34] = C64_LIGHT_DARK_RED;
+  // buffer[35] = C64_LIGHT_DARK_PURPLE;
+  // buffer[36] = C64_LIGHT_DARK_GREEN;
+  // buffer[37] = C64_LIGHT_DARK_CYAN;
+  // buffer[38] = C64_LIGHT_DARK_YELLOW;
+  // buffer[39] = C64_LIGHT_DARK_ORANGE;
+
 }
 
 #endif // DK_COLOR_IMPLEMENTATION

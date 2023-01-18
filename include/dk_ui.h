@@ -22,18 +22,18 @@
 #endif
 
 bool
-dk_ui_button(app_t* game, SDL_Rect rect, SDL_Color color, char* text);
+dk_ui_button(app_t* game, SDL_Rect rect, SDL_Color color, char* text, bool* focused);
 
 bool
-dk_ui_icon_button(app_t* game, SDL_Rect rect, SDL_Color color, SDL_Texture* texture);
+dk_ui_icon_button(app_t* game, SDL_Rect rect, SDL_Color color, SDL_Texture* texture, bool* focused);
 
 void
-dk_ui_text_input(app_t* game, SDL_Point position, char* placeholder, void(callback)(char*));
+dk_ui_text_input(app_t* game, SDL_Point position, char* placeholder, void(callback)(char*), bool* focused);
 
 #if defined(DK_UI_IMPLEMENTATION)
 
 bool
-dk_ui_button(app_t* game, SDL_Rect rect, SDL_Color color, char* text)
+dk_ui_button(app_t* game, SDL_Rect rect, SDL_Color color, char* text, bool* focused)
 {
 
   SDL_Color btn_color = color;
@@ -53,6 +53,8 @@ dk_ui_button(app_t* game, SDL_Rect rect, SDL_Color color, char* text)
 
   if (rect.x < game->mouse.x && game->mouse.x < rect.x + rect.w && rect.y < game->mouse.y && game->mouse.y < rect.y + rect.h) {
 
+    *focused = true;
+
     mouse_pressed = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
     // Hover color
@@ -71,6 +73,7 @@ dk_ui_button(app_t* game, SDL_Rect rect, SDL_Color color, char* text)
 
   } else {
     btn_color = color;
+    *focused = false;
   }
 
   SDL_SetRenderDrawColor(game->renderer, btn_color.r, btn_color.g, btn_color.b, btn_color.a);
@@ -97,15 +100,15 @@ dk_ui_button(app_t* game, SDL_Rect rect, SDL_Color color, char* text)
   return false;
 }
 
-bool dk_ui_icon_button(app_t* game, SDL_Rect rect, SDL_Color color, SDL_Texture* texture)
+bool dk_ui_icon_button(app_t* game, SDL_Rect rect, SDL_Color color, SDL_Texture* texture, bool* focused)
 {
 
   SDL_Color btn_color = color;
-
   int mouse_pressed = 0;
 
   if (rect.x < game->mouse.x && game->mouse.x < rect.x + rect.w && rect.y < game->mouse.y && game->mouse.y < rect.y + rect.h) {
 
+    *focused = true;
     mouse_pressed = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
 
     // Hover color
@@ -124,6 +127,7 @@ bool dk_ui_icon_button(app_t* game, SDL_Rect rect, SDL_Color color, SDL_Texture*
 
   } else {
     btn_color = color;
+    *focused = false;
   }
 
   SDL_Rect image_rect = {
@@ -133,6 +137,7 @@ bool dk_ui_icon_button(app_t* game, SDL_Rect rect, SDL_Color color, SDL_Texture*
     rect.h
   };
 
+  SDL_SetTextureColorMod(texture, btn_color.r, btn_color.g, btn_color.b);
   SDL_RenderCopy(game->renderer, texture, NULL, &image_rect);
 
   if (mouse_pressed) {
@@ -142,7 +147,7 @@ bool dk_ui_icon_button(app_t* game, SDL_Rect rect, SDL_Color color, SDL_Texture*
   return false;
 }
 
-void dk_ui_text_input(app_t* game, SDL_Point position, char* placeholder, void(callback)(char*)) {
+void dk_ui_text_input(app_t* game, SDL_Point position, char* placeholder, void(callback)(char*), bool* focused) {
 
   int text_width = dk_text_width(&game->ui_text, game->raw_text_input_buffer);
   int text_height = dk_text_height(&game->ui_text, game->raw_text_input_buffer);
@@ -158,6 +163,12 @@ void dk_ui_text_input(app_t* game, SDL_Point position, char* placeholder, void(c
 
   if (rect.h < text_height) {
     rect.h = text_height + 10;
+  }
+
+  if (rect.x < game->mouse.x && game->mouse.x < rect.x + rect.w && rect.y < game->mouse.y && game->mouse.y < rect.y + rect.h) {
+    *focused = true;
+  } else {
+    *focused = false;
   }
 
   SDL_RenderFillRect(game->renderer, &rect);

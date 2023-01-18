@@ -9,8 +9,11 @@ typedef enum icon_type
 {
   ICON_NONE = 0,
   ICON_PLAY,
-  ICON_STOP,
+  ICON_PAUSE,
   ICON_GRID,
+  ICON_EXIT,
+  ICON_SAVE,
+  ICON_CLEAR,
   ICON_COUNT
 } icon_type_t;
 
@@ -54,15 +57,27 @@ icon_load_32x32(icon_t* icon, icon_type_t type, SDL_Renderer* renderer)
   {
     case ICON_PLAY:
     {
-      icon->texture = icon_load__texture(renderer, "assets/icons/play.png");
+      icon->texture = icon_load__texture(renderer, "assets/icons/Play.png");
     } break;
-    case ICON_STOP:
+    case ICON_PAUSE:
     {
-      icon->texture = icon_load__texture(renderer, "assets/icons/stop.png");
+      icon->texture = icon_load__texture(renderer, "assets/icons/Pause.png");
     } break;
     case ICON_GRID:
     {
-      icon->texture = icon_load__texture(renderer, "assets/icons/grid.png");
+      icon->texture = icon_load__texture(renderer, "assets/icons/Grid.png");
+    } break;
+    case ICON_EXIT:
+    {
+      icon->texture = icon_load__texture(renderer, "assets/icons/Power.png");
+    } break;
+    case ICON_SAVE:
+    {
+      icon->texture = icon_load__texture(renderer, "assets/icons/Floppy-Drive.png");
+    } break;
+    case ICON_CLEAR:
+    {
+      icon->texture = icon_load__texture(renderer, "assets/icons/Redo.png");
     } break;
     default:
     {

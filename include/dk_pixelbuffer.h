@@ -1,8 +1,12 @@
 #if !defined(DK_PIXELBUFFER_H)
 #define DK_PIXELBUFFER_H
 
+#include <assert.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+
+#include "dk_app.h"
 #include "dk_macros.h"
 
 #if !defined(__DK_COLOR_H__)
@@ -58,7 +62,7 @@ void
 pixel_buffer_remove_all(pixel_buffer_t* buffer, u32 col, u32 row);
 
 void
-pixel_buffer_draw(pixel_buffer_t* buffer, SDL_Renderer* renderer);
+pixel_buffer_draw(pixel_buffer_t* buffer, app_camera_t* camera, SDL_Renderer* renderer);
 
 void
 png_to_pixel_buffer(pixel_buffer_t* buffer, const char* filename, int scale);
