@@ -103,7 +103,7 @@ game_init(app_t* game)
                                   SDL_WINDOWPOS_CENTERED,
                                   WINDOW_WIDTH,
                                   WINDOW_HEIGHT,
-                                  SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL);
+                                  SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
   if (FULLSCREEN) {
     SDL_SetWindowFullscreen(game->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
