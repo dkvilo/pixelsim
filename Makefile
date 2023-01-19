@@ -6,7 +6,7 @@ BIN 						:= pixsim
 
 CFDEBUG 				:= -g
 CFOPT 					:= -O3
-CFLAGS					:= -std=c99 $(CFDEBUG) $(CFOPT) -Wall -Wno-unused-function
+CFLAGS					:= -std=c99 $(CFOPT) -Wall -Wno-unused-function -Wno-switch
 CLIBS 					:= -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 
 prepare:

@@ -30,7 +30,45 @@ dk_ui_icon_button(app_t* game, SDL_Rect rect, SDL_Color color, SDL_Texture* text
 void
 dk_ui_text_input(app_t* game, SDL_Point position, char* placeholder, void(callback)(char*), bool* focused);
 
+void
+dk_ui_tooltip(app_t* game, SDL_Rect rect, char* text, bool* visible);
+
 #if defined(DK_UI_IMPLEMENTATION)
+
+void
+dk_ui_tooltip(app_t* game, SDL_Rect rect, char* text, bool* visible)
+{
+
+  if (rect.x < game->mouse.x && game->mouse.x < rect.x + rect.w && rect.y < game->mouse.y && game->mouse.y < rect.y + rect.h) {
+    *visible = true;
+  } else {
+    *visible = false;
+  }
+
+  if (*visible) {
+
+    int text_width = dk_text_width(&game->ui_text, text);
+    int text_height = dk_text_height(&game->ui_text, text);
+
+    SDL_Rect tooltip_rect = {
+      rect.x + rect.w + 10,
+      rect.y + rect.h / 2 - text_height / 2,
+      text_width + 10,
+      text_height + 10
+    };
+
+    SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(game->renderer, &tooltip_rect);
+
+    SDL_Point position = {
+      tooltip_rect.x + tooltip_rect.w / 2 - dk_text_width(&game->ui_text, text) / 2,
+      tooltip_rect.y
+    };
+
+    game->ui_text.color = C64_WHITE;
+    dk_text_draw(&game->ui_text, text, position.x, position.y);
+  }
+}
 
 bool
 dk_ui_button(app_t* game, SDL_Rect rect, SDL_Color color, char* text, bool* focused)

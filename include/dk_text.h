@@ -33,6 +33,9 @@ dk_text_set_size(dk_text_t *fptr, i32 size);
 void
 dk_text_destroy(dk_text_t* draw_text);
 
+void
+dk_text_draw_ext(dk_text_t* draw_text, char* text, i32 x, i32 y, SDL_Color color);
+
 #if defined(DK_TEXT_IMPLEMENTATION)
 void
 dk_text_init(dk_text_t* draw_text,
@@ -60,10 +63,14 @@ void dk_text_set_size(dk_text_t *fptr, i32 size) {
 void
 dk_text_draw(dk_text_t* draw_text, char* text, i32 x, i32 y)
 {
-  SDL_Surface* surface =
-    TTF_RenderText_Solid(draw_text->font, text, draw_text->color);
-  SDL_Texture* texture =
-    SDL_CreateTextureFromSurface(draw_text->renderer, surface);
+  dk_text_draw_ext(draw_text, text, x, y, draw_text->color);
+}
+
+void
+dk_text_draw_ext(dk_text_t* draw_text, char* text, i32 x, i32 y, SDL_Color color)
+{
+  SDL_Surface* surface = TTF_RenderText_Solid(draw_text->font, text, color);
+  SDL_Texture* texture = SDL_CreateTextureFromSurface(draw_text->renderer, surface);
   SDL_Rect rect = { x, y, surface->w, surface->h };
   SDL_RenderCopy(draw_text->renderer, texture, NULL, &rect);
   SDL_FreeSurface(surface);
