@@ -27,7 +27,9 @@
 #define DK_COLOR_IMPLEMENTATION
 #include "dk_color.h"
 
+#define DK_PIXELBUFFER_IMPLEMENTATION
 #include "dk_pixelbuffer.h"
+
 #include "dk_app.h"
 #include "dk_macros.h"
 
@@ -36,6 +38,9 @@
 
 #define DK_UI_IMPLEMENTATION
 #include "dk_ui.h"
+
+#define DK_CLIPBOARD_IMPLEMENTATION
+#include "dk_clipboard.h"
 
 typedef enum {
   BRUSH_RECT = 0,
@@ -74,6 +79,8 @@ i32 primary_brush_size = 2;
 static const int frame_count = 9;
 pixel_buffer_t* frames;
 int active_frame_buffer_index = 0;
+
+dk_clipboard_t* clipboard = NULL;
 
 void
 game_init(app_t* game)
@@ -146,13 +153,17 @@ game_init(app_t* game)
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_NUMBER9], (SDL_Point){13, 7});
 
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_BRUSH_CROSS], (SDL_Point){0, 2});
-  get_icon_from_tileset(game->renderer, tileset, &icons[ICON_BRUSH_RECT], (SDL_Point){2, 14});
+  get_icon_from_tileset(game->renderer, tileset, &icons[ICON_BRUSH_RECT], (SDL_Point){15, 3});
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_BRUSH_CIRCLE], (SDL_Point){13, 2});
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_BRUSH_RECT_OUTLINE], (SDL_Point){3, 7});
 
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_PIXEL_TYPE_WATER], (SDL_Point){7, 15});
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_PIXEL_TYPE_SAND], (SDL_Point){7, 15});
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_PIXEL_TYPE_FIRE], (SDL_Point){7, 15});
+
+  get_icon_from_tileset(game->renderer, tileset, &icons[ICON_COPY_BUFFER], (SDL_Point){4, 3});
+  get_icon_from_tileset(game->renderer, tileset, &icons[ICON_PASTE_BUFFER], (SDL_Point){15, 0});
+
 
   if (TTF_Init() != 0) {
     printf("TTF_Init Error: %s ", TTF_GetError());
@@ -179,6 +190,9 @@ game_init(app_t* game)
   for (int i = 0; i < frame_count; i++) {
     pixel_buffer_init(&frames[i]);
   }
+
+  clipboard = (pixel_buffer_t*) malloc(sizeof(pixel_buffer_t));
+  memset(clipboard, 0, sizeof(pixel_buffer_t));
 
   game->running = true;
 }
@@ -633,10 +647,22 @@ game_render(app_t* game)
         }
       }
 
+      // COPY BUTTON
+      SDL_Rect rect13 = { rect12.x + icon_size + icon_padding, icon_pos_y, icons[ICON_COPY_BUFFER].rect.w, icons[ICON_COPY_BUFFER].rect.h };
+      if (dk_ui_icon_button(game, rect13, C64_LIGHT_BLUE, icons[ICON_COPY_BUFFER].texture, &game->ui_focused)) {
+        dk_clipboard_set(clipboard, &frames[active_frame_buffer_index]);
+      }
+
+      // PASTE BUTTON
+      SDL_Rect rect14 = { rect13.x + icon_size + icon_padding, icon_pos_y, icons[ICON_PASTE_BUFFER].rect.w, icons[ICON_PASTE_BUFFER].rect.h };
+      if (dk_ui_icon_button(game, rect14, C64_LIGHT_BLUE, icons[ICON_PASTE_BUFFER].texture, &game->ui_focused)) {
+        dk_clipboard_paste_to_buffer(clipboard, &frames[active_frame_buffer_index]);
+      }
+
       // tooltip for save button
       {
         bool is_visible = false;
-        dk_ui_tooltip(game, rect8, "Save", &is_visible);
+        dk_ui_tooltip(game, rect8, "Save Buffer", &is_visible);
       }
 
       // tooltip for clear button
@@ -668,6 +694,20 @@ game_render(app_t* game)
         bool is_visible = false;
         char* str = "Enable/Disable Grid";
         dk_ui_tooltip(game, rect10, str, &is_visible);
+      }
+
+      // tooltip for copy button
+      {
+        bool is_visible = false;
+        char* str = "Copy Buffer";
+        dk_ui_tooltip(game, rect13, str, &is_visible);
+      }
+
+      // tooltip for paste button
+      {
+        bool is_visible = false;
+        char* str = "Paste In Buffer";
+        dk_ui_tooltip(game, rect14, str, &is_visible);
       }
 
       static i32 size = 25;
