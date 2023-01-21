@@ -576,7 +576,7 @@ game_render(app_t* game)
         sprintf(filename, "pixsim-export-%d-%d-%d_%d-%d-%d.psb", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
         pixel_buffer_save(&frames[active_frame_buffer_index], filename);
 
-        char str[255];
+        char str[512];
         sprintf(str, "File Saved to %s", filename);
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Saved!", (const char*)str, NULL);
       }
@@ -637,7 +637,7 @@ game_render(app_t* game)
             sprintf(filename, "pixsim-export-%d-%d-%d_%d-%d-%d.psb", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
             pixel_buffer_save(&frames[active_frame_buffer_index], filename);
 
-            char str[255];
+            char str[512];
             sprintf(str, "File Saved to %s", filename);
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Saved!", (const char*)str, NULL);
           }

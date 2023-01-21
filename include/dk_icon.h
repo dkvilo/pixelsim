@@ -124,7 +124,6 @@ void get_icon_from_tileset(SDL_Renderer* renderer, tileset_t* tileset, icon_t* i
   // set the render target back to the screen
   SDL_SetRenderTarget(renderer, NULL);
 
-  SDL_SetTextureScaleMode(icon->texture, SDL_ScaleModeNearest);
   SDL_SetTextureBlendMode(icon->texture, SDL_BLENDMODE_BLEND);
 
   // Scaling up to 32x32
