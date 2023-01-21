@@ -18,9 +18,6 @@
 #include <unistd.h>
 #include <string.h>
 
-#define V2_IMPLEMENTATION
-#include "dk_linmath.h"
-
 #define DK_TEXT_IMPLEMENTATION
 #include "dk_text.h"
 
@@ -105,29 +102,34 @@ game_init(app_t* game)
   game->ui_focused = false;
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    printf("SDL_Init Error: %s ", SDL_GetError());
+    SDL_Log("SDL_Init Error: %s ", SDL_GetError());
     exit(1);
   }
 
+  // Get the current display mode
+  static SDL_DisplayMode display_mode;
+  SDL_GetCurrentDisplayMode(0, &display_mode);
+
+  // Update the window size to match the display size
+  WINDOW_WIDTH = display_mode.w;
+  WINDOW_HEIGHT = display_mode.h;
+
+  u32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP;
   game->window = SDL_CreateWindow("Pixel Simulator - v0.1",
                                   SDL_WINDOWPOS_CENTERED,
                                   SDL_WINDOWPOS_CENTERED,
                                   WINDOW_WIDTH,
                                   WINDOW_HEIGHT,
-                                  SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-
-  if (FULLSCREEN) {
-    SDL_SetWindowFullscreen(game->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-  }
+                                  window_flags);
 
   if (game->window == NULL) {
-    printf("SDL_CreateWindow Error: %s ", SDL_GetError());
+    SDL_Log("SDL_CreateWindow Error: %s ", SDL_GetError());
     exit(1);
   }
 
   game->renderer = SDL_CreateRenderer(game->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   if (game->renderer == NULL) {
-    printf("SDL_CreateRenderer Error: %s ", SDL_GetError());
+    SDL_Log("SDL_CreateRenderer Error: %s ", SDL_GetError());
     exit(1);
   }
 
@@ -166,13 +168,13 @@ game_init(app_t* game)
 
 
   if (TTF_Init() != 0) {
-    printf("TTF_Init Error: %s ", TTF_GetError());
+    SDL_Log("TTF_Init Error: %s ", TTF_GetError());
     exit(1);
   }
 
   TTF_Font* font = TTF_OpenFont("assets/font/Monogram-Extended.ttf", 60);
   if (font == NULL) {
-    fprintf(stderr, "Font Error: Unable to find a font file\n");
+    SDL_Log("Font Error: Unable to find a font file\n");
     exit(EXIT_FAILURE);
   }
 
@@ -180,7 +182,7 @@ game_init(app_t* game)
 
   TTF_Font* ui_font = TTF_OpenFont("assets/font/Monogram-Extended.ttf", 35);
   if (ui_font == NULL) {
-    fprintf(stderr, "Font Error: Unable to find a font file\n");
+    SDL_Log("Font Error: Unable to find a font file\n");
     exit(EXIT_FAILURE);
   }
 
@@ -395,7 +397,7 @@ game_update(app_t* game)
 
 void text_input_handler(char* text_input_buffer)
 {
-  printf("Text Input: %s\n", text_input_buffer);
+  SDL_Log("Text Input: %s\n", text_input_buffer);
 }
 
 void
@@ -427,7 +429,6 @@ game_render(app_t* game)
     case IN_GAME: {
 
       game->text.color = (SDL_Color){ 19, 15, 64, 100 };
-
       SDL_Color bg_color = {47, 53, 66, 255};
       SDL_SetRenderDrawColor(game->renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
       SDL_RenderClear(game->renderer);

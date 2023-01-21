@@ -1,25 +1,12 @@
 #if !defined(DK_UI_H)
 #define DK_UI_H
 
-#if !defined(SDL_h_)
 #include <SDL2/SDL.h>
-#endif
 
-#if !defined(DK_ICON_H)
 #include "dk_icon.h"
-#endif
-
-#if !defined(DK_COLOR_H)
 #include "dk_color.h"
-#endif
-
-#if !defined(DK_TEXT_H)
 #include "dk_text.h"
-#endif
-
-#if !defined(DK_APP_H)
 #include "dk_app.h"
-#endif
 
 bool
 dk_ui_button(app_t* game, SDL_Rect rect, SDL_Color color, char* text, bool* focused);

@@ -1,8 +1,8 @@
 #if !defined(DK_MACROS_H)
 #define DK_MACROS_H
 
-#define WINDOW_WIDTH 1080
-#define WINDOW_HEIGHT 720
+static int WINDOW_WIDTH = 1080;
+static int WINDOW_HEIGHT = 720;
 
 #define GRID_CELL_SIZE 10
 

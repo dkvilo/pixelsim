@@ -2,23 +2,13 @@
 #define DK_PIXELBUFFER_H
 
 #include <assert.h>
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#if !defined(DK_APP_H)
 #include "dk_app.h"
-#endif
-
 #include "dk_macros.h"
-
-#if !defined(__DK_COLOR_H__)
 #include "dk_color.h"
-#endif
-
-#if !defined(__DK_H__)
 #include "dk.h"
-#endif
 
 typedef enum {
   PIXEL_TYPE_WATER,

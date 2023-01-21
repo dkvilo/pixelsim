@@ -1,9 +1,7 @@
 #if !defined(DK_ICON_H)
 #define DK_ICON_H
 
-#if !defined(SDL_h_)
 #include <SDL2/SDL.h>
-#endif
 
 typedef struct
 {
