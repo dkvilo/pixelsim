@@ -892,6 +892,8 @@ game_render(app_t* game)
         // selected tile to screen
         SDL_SetRenderTarget(game->renderer, NULL);
 
+        SDL_SetTextureBlendMode(selected_tile_texture, SDL_BLENDMODE_BLEND);
+
         selected_tile_rect.x = tileset->rect.w + TILE_SIZE;
         selected_tile_rect.y = 0;
         selected_tile_rect.w = TILE_SIZE * 8;
