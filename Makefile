@@ -7,7 +7,7 @@ BIN 						:= pixsim
 
 CFDEBUG 				:= -g
 CFOPT 					:= -O3
-CFLAGS					:= -std=c99 $(CFDEBUG) -Wall -Wno-unused-function -Wno-switch
+CFLAGS					:= -std=c99 $(CFDEBUG) -Wall -Wno-unused-function -Wno-switch -Wextra -pedantic -Wconversion
 CLIBS 					:= -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 
 ifeq ($(OS), darwin)
@@ -33,7 +33,7 @@ build_macosx:
 	make prepare && $(CC) $(CFLAGS) -I./$(INCLUDE) $(SOURCE)/*.c -o $(OUT)/$(BIN) $(CLIBS)
 
 build_linux:
-	make prepare && $(CC) $(CFLAGS) -I./$(INCLUDE) -I./`pkg-config --cflags sdl2` $(SOURCE)/*.c -o $(OUT)/$(BIN) $(CLIBS) -Wl,-Bstatic -lSDL2 -Wl,-Bdynamic -lm -ldl -lrt
+	make prepare && $(CC) $(CFLAGS) -g -I./$(INCLUDE) -I./`pkg-config --cflags sdl2` $(SOURCE)/*.c -o $(OUT)/$(BIN) $(CLIBS) -Wl,-Bstatic -lSDL2 -Wl,-Bdynamic -lm -ldl -lrt
 
 .PHONY:
 	build clean

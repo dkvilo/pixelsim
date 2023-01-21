@@ -73,16 +73,16 @@ void
 update_pixel_simulation(pixel_buffer_t* buffer);
 
 void
-pixel_buffer_add_circle(pixel_buffer_t* buffer, pixel_t pixel, u32 radius);
+pixel_buffer_add_circle(pixel_buffer_t* buffer, pixel_t pixel, u32 radius, bool erase);
 
 void
-pixel_buffer_add_line(pixel_buffer_t* buffer, pixel_t pixel, u32 length, u32 direction);
+pixel_buffer_add_line(pixel_buffer_t* buffer, pixel_t pixel, u32 length, u32 direction, bool erase);
 
 void
-pixel_buffer_add_rect(pixel_buffer_t* buffer, pixel_t pixel, u32 width, u32 height);
+pixel_buffer_add_rect(pixel_buffer_t* buffer, pixel_t pixel, u32 width, u32 height, bool erase);
 
 void
-pixel_buffer_add_rect_outline(pixel_buffer_t* buffer, pixel_t pixel, u32 width, u32 height);
+pixel_buffer_add_rect_outline(pixel_buffer_t* buffer, pixel_t pixel, u32 width, u32 height, bool erase);
 
 pixel_t
 pixel_buffer_get_pixel(pixel_buffer_t* buffer, u32 col, u32 row);
@@ -92,6 +92,13 @@ pixel_buffer_set_pixel(pixel_buffer_t* buffer, pixel_t pixel);
 
 pixel_t
 pixel_buffer_get(pixel_buffer_t* buffer, u32 col, u32 row);
+
+void
+pixel_buffer_shade_pixel(pixel_buffer_t* buffer, pixel_t* pixel, u32 radius);
+
+pixel_t*
+pixel_buffer_get_pixel_ptr(pixel_buffer_t* buffer, u32 col, u32 row);
+
 
 #if defined(DK_PIXELBUFFER_IMPLEMENTATION)
 
@@ -119,11 +126,12 @@ pixel_buffer_add(pixel_buffer_t* buffer, pixel_t pixel)
     return;
   }
 
+  // if pixel already exists, swap it with the last pixel in the buffer
   for (u32 i = 0; i < buffer->count; i++) {
-    if (buffer->pixels[i].col == pixel.col && buffer->pixels[i].row == pixel.row
-    && buffer->pixels[i].color.r == pixel.color.r && buffer->pixels[i].color.g == pixel.color.g && buffer->pixels[i].color.b == pixel.color.b && buffer->pixels[i].color.a == pixel.color.a && buffer->pixels[i].type == pixel.type
-    ) {
-      return;
+    if (buffer->pixels[i].col == pixel.col && buffer->pixels[i].row == pixel.row) {
+      buffer->pixels[i] = buffer->pixels[buffer->count - 1];
+      buffer->count--;
+      break;
     }
   }
 
@@ -133,7 +141,7 @@ pixel_buffer_add(pixel_buffer_t* buffer, pixel_t pixel)
 }
 
 void
-pixel_buffer_add_circle(pixel_buffer_t* buffer, pixel_t pixel, u32 radius)
+pixel_buffer_add_circle(pixel_buffer_t* buffer, pixel_t pixel, u32 radius, bool erase)
 {
   for (u32 i = 0; i < radius; i++) {
     for (u32 j = 0; j < radius; j++) {
@@ -141,29 +149,45 @@ pixel_buffer_add_circle(pixel_buffer_t* buffer, pixel_t pixel, u32 radius)
         pixel_t p = pixel;
         p.col += i;
         p.row += j;
-        pixel_buffer_add(buffer, p);
+        if (erase) {
+          pixel_buffer_remove_all(buffer, p.col, p.row);
+        } else {
+          pixel_buffer_add(buffer, p);
+        }
 
         p = pixel;
         p.col -= i;
         p.row += j;
-        pixel_buffer_add(buffer, p);
+        if (erase) {
+          pixel_buffer_remove_all(buffer, p.col, p.row);
+        } else {
+          pixel_buffer_add(buffer, p);
+        }
 
         p = pixel;
         p.col += i;
         p.row -= j;
-        pixel_buffer_add(buffer, p);
+        if (erase) {
+          pixel_buffer_remove_all(buffer, p.col, p.row);
+        } else {
+          pixel_buffer_add(buffer, p);
+        }
 
         p = pixel;
         p.col -= i;
         p.row -= j;
-        pixel_buffer_add(buffer, p);
+        if (erase) {
+          pixel_buffer_remove_all(buffer, p.col, p.row);
+        } else {
+          pixel_buffer_add(buffer, p);
+        }
       }
     }
   }
 }
 
 void
-pixel_buffer_add_line(pixel_buffer_t* buffer, pixel_t pixel, u32 length, u32 direction)
+pixel_buffer_add_line(pixel_buffer_t* buffer, pixel_t pixel, u32 length, u32 direction, bool erase)
 {
   for (u32 i = 0; i < length; i++) {
     pixel_t p = pixel;
@@ -173,48 +197,72 @@ pixel_buffer_add_line(pixel_buffer_t* buffer, pixel_t pixel, u32 length, u32 dir
       case 2: p.col -= i; break;
       case 3: p.row -= i; break;
     }
-    pixel_buffer_add(buffer, p);
-  }
-}
-
-void
-pixel_buffer_add_rect(pixel_buffer_t* buffer, pixel_t pixel, u32 width, u32 height)
-{
-  for (u32 i = 0; i < width; i++) {
-    for (u32 j = 0; j < height; j++) {
-      pixel_t p = pixel;
-      p.col += i - width / 2;
-      p.row += j - height / 2;
+    if (erase) {
+      pixel_buffer_remove_all(buffer, p.col, p.row);
+    } else {
       pixel_buffer_add(buffer, p);
     }
   }
 }
 
 void
-pixel_buffer_add_rect_outline(pixel_buffer_t* buffer, pixel_t pixel, u32 width, u32 height)
+pixel_buffer_add_rect(pixel_buffer_t* buffer, pixel_t pixel, u32 width, u32 height, bool erase)
+{
+  for (u32 i = 0; i < width; i++) {
+    for (u32 j = 0; j < height; j++) {
+      pixel_t p = pixel;
+      p.col += i - width / 2;
+      p.row += j - height / 2;
+      if (erase) {
+        pixel_buffer_remove_all(buffer, p.col, p.row);
+      } else {
+        pixel_buffer_add(buffer, p);
+      }
+    }
+  }
+}
+
+void
+pixel_buffer_add_rect_outline(pixel_buffer_t* buffer, pixel_t pixel, u32 width, u32 height, bool erase)
 {
   for (u32 i = 0; i <= width; i++) {
     pixel_t p = pixel;
     p.col += i - width / 2;
     p.row -= height / 2;
-    pixel_buffer_add(buffer, p);
+    if (erase) {
+      pixel_buffer_remove_all(buffer, p.col, p.row);
+    } else {
+      pixel_buffer_add(buffer, p);
+    }
 
     p = pixel;
     p.col += i - width / 2;
     p.row += height / 2;
-    pixel_buffer_add(buffer, p);
+    if (erase) {
+      pixel_buffer_remove_all(buffer, p.col, p.row);
+    } else {
+      pixel_buffer_add(buffer, p);
+    }
   }
 
   for (u32 i = 0; i < height; i++) {
     pixel_t p = pixel;
     p.col -= width / 2;
     p.row += i - height / 2;
-    pixel_buffer_add(buffer, p);
+    if (erase) {
+      pixel_buffer_remove_all(buffer, p.col, p.row);
+    } else {
+      pixel_buffer_add(buffer, p);
+    }
 
     p = pixel;
     p.col += width / 2;
     p.row += i - height / 2;
-    pixel_buffer_add(buffer, p);
+    if (erase) {
+      pixel_buffer_remove_all(buffer, p.col, p.row);
+    } else {
+      pixel_buffer_add(buffer, p);
+    }
   }
 }
 
@@ -239,6 +287,10 @@ pixel_buffer_remove(pixel_buffer_t* buffer, u32 index)
 void
 pixel_buffer_remove_all(pixel_buffer_t* buffer, u32 col, u32 row)
 {
+  if (buffer->count == 0) {
+    return;
+  }
+
   for (u32 i = 0; i < buffer->count; i++) {
     if (buffer->pixels[i].col == col && buffer->pixels[i].row == row) {
       pixel_buffer_remove(buffer, i);
@@ -286,7 +338,7 @@ pixel_buffer_draw(pixel_buffer_t* buffer, app_camera_t* camera, SDL_Renderer* re
 
     SDL_Color color = buffer->pixels[i].color;
 
-    //  SDL_Color color = buffer->pixels[i].color;
+#if 1
     // if pixel do not have neighbor, draw it darker to make it look like a shadow
     if (pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.a == 0 &&
         pixel_buffer_get(buffer, buffer->pixels[i].col + 1, buffer->pixels[i].row).color.a == 0 &&
@@ -308,42 +360,31 @@ pixel_buffer_draw(pixel_buffer_t* buffer, app_camera_t* camera, SDL_Renderer* re
       color.g /= 1.5;
       color.b /= 1.5;
     }
+#endif
 
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &rect);
   }
 }
 
-// TODO: this function is not working properly at the moment
 void
-pixel_buffer_auto_shade(pixel_buffer_t* buffer, pixel_t* pixel)
+pixel_buffer_shade_pixel(pixel_buffer_t* buffer, pixel_t* pixel, u32 radius)
 {
-  for (u32 i = 0; i < buffer->count; i++) {
-
-    SDL_Color color = buffer->pixels[i].color;
-    // if pixel do not have neighbor, draw it darker to make it look like a shadow
-    if (pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.a == 0 &&
-        pixel_buffer_get(buffer, buffer->pixels[i].col + 1, buffer->pixels[i].row).color.a == 0 &&
-        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row - 1).color.a == 0 &&
-        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row + 1).color.a == 0) {
-      color.r /= 2;
-      color.g /= 2;
-      color.b /= 2;
-    } else if (pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.a == 0 ||
-        pixel_buffer_get(buffer, buffer->pixels[i].col + 1, buffer->pixels[i].row).color.a == 0 ||
-        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row - 1).color.a == 0 ||
-        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row + 1).color.a == 0 ||
-          // their color is different
-          pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.r != color.r ||
-          pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.g != color.g ||
-          pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.b != color.b
-        ) {
-      color.r /= 1.5;
-      color.g /= 1.5;
-      color.b /= 1.5;
-    }
-
-    pixel->color = color;
+  SDL_Color *color = &pixel->color;
+  if (pixel_buffer_get(buffer, pixel->col - radius, pixel->row).color.a == 0 &&
+      pixel_buffer_get(buffer, pixel->col + radius, pixel->row).color.a == 0 &&
+      pixel_buffer_get(buffer, pixel->col, pixel->row - radius).color.a == 0 &&
+      pixel_buffer_get(buffer, pixel->col, pixel->row + radius).color.a == 0) {
+    color->r /= 2;
+    color->g /= 2;
+    color->b /= 2;
+  } else if (pixel_buffer_get(buffer, pixel->col - radius, pixel->row).color.a == 0 ||
+      pixel_buffer_get(buffer, pixel->col + radius, pixel->row).color.a == 0 ||
+      pixel_buffer_get(buffer, pixel->col, pixel->row - radius).color.a == 0 ||
+      pixel_buffer_get(buffer, pixel->col, pixel->row + radius).color.a == 0) {
+    color->r /= 1.5;
+    color->g /= 1.5;
+    color->b /= 1.5;
   }
 }
 
@@ -382,6 +423,18 @@ pixel_buffer_get_pixel(pixel_buffer_t* buffer, u32 col, u32 row)
 
   pixel_t pixel = { 0 };
   return pixel;
+}
+
+pixel_t*
+pixel_buffer_get_pixel_ptr(pixel_buffer_t* buffer, u32 col, u32 row)
+{
+  for (u32 i = 0; i < buffer->count; i++) {
+    if (buffer->pixels[i].col == col && buffer->pixels[i].row == row) {
+      return &buffer->pixels[i];
+    }
+  }
+
+  return NULL;
 }
 
 void

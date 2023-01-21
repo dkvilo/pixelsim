@@ -92,7 +92,6 @@ game_init(app_t* game)
   load_colors(DK_PALLETE);
 
   game->state = IN_GAME;
-  game->raw_text_input_buffer = malloc(sizeof(char) * 1080);
 
   game->game_state = (app_state_t) { .grid_enabled = true, .simulation_running = false };
 
@@ -237,7 +236,6 @@ game_handle_events(app_t* game)
         }
         break;
       case SDL_TEXTINPUT:
-        strcat(game->raw_text_input_buffer, game->event.text.text);
         break;
       case SDL_QUIT:
         game->running = false;
@@ -245,7 +243,6 @@ game_handle_events(app_t* game)
       case SDL_KEYDOWN:
         switch (game->event.key.keysym.sym) {
           case SDLK_BACKSPACE:
-            game->raw_text_input_buffer[strlen(game->raw_text_input_buffer) - 1] = '\0';
             break;
           case SDLK_ESCAPE:
             game->state = PAUSE;
@@ -333,38 +330,48 @@ game_update(app_t* game)
           .color = primary_color
         };
 
-        // pixel_buffer_auto_shade(&frames[active_frame_buffer_index], &pixel);
+        static bool is_erasing = false;
 
         if (is_in_bounds && !game->ui_focused) {
           if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_E]) {
-            pixel_buffer_remove_all(&frames[active_frame_buffer_index], coord_x, coord_y);
+            is_erasing = true;
           } else {
-            switch(primary_brush_type) {
-              case BRUSH_RECT:
-                pixel_buffer_add_rect(&frames[active_frame_buffer_index], pixel, primary_brush_size, primary_brush_size);
-                break;
-              case BRUSH_CIRCLE:
-                pixel_buffer_add_circle(&frames[active_frame_buffer_index], pixel, primary_brush_size);
-                break;
-              case BRUSH_LINE:
-                pixel_buffer_add_line(&frames[active_frame_buffer_index], pixel, primary_brush_size, 0);
-                pixel_buffer_add_line(&frames[active_frame_buffer_index], pixel, primary_brush_size, 1);
-                pixel_buffer_add_line(&frames[active_frame_buffer_index], pixel, primary_brush_size, 2);
-                pixel_buffer_add_line(&frames[active_frame_buffer_index], pixel, primary_brush_size, 3);
-                break;
-              case BRUSH_PENCIL:
-                pixel_buffer_add(&frames[active_frame_buffer_index], pixel);
-              case BRUSH_ERASER:
-                pixel_buffer_clear(&frames[active_frame_buffer_index]);
-              case BRUSH_RECT_OUTLINE:
-                pixel_buffer_add_rect_outline(&frames[active_frame_buffer_index], pixel, primary_brush_size, primary_brush_size);
-                break;
-            }
+            is_erasing = false;
+          }
+
+          switch(primary_brush_type) {
+            case BRUSH_RECT:
+              pixel_buffer_add_rect(&frames[active_frame_buffer_index], pixel, primary_brush_size, primary_brush_size, is_erasing);
+              break;
+            case BRUSH_CIRCLE:
+              pixel_buffer_add_circle(&frames[active_frame_buffer_index], pixel, primary_brush_size, is_erasing);
+              break;
+            case BRUSH_LINE:
+              pixel_buffer_add_line(&frames[active_frame_buffer_index], pixel, primary_brush_size, 0, is_erasing);
+              pixel_buffer_add_line(&frames[active_frame_buffer_index], pixel, primary_brush_size, 1, is_erasing);
+              pixel_buffer_add_line(&frames[active_frame_buffer_index], pixel, primary_brush_size, 2, is_erasing);
+              pixel_buffer_add_line(&frames[active_frame_buffer_index], pixel, primary_brush_size, 3, is_erasing);
+              break;
+            case BRUSH_PENCIL:
+              pixel_buffer_add(&frames[active_frame_buffer_index], pixel);
+            case BRUSH_ERASER:
+              pixel_buffer_clear(&frames[active_frame_buffer_index]);
+            case BRUSH_RECT_OUTLINE:
+#if 0
+              // TODO (David): Add brush type for shading pixels
+              pixel_t *p = pixel_buffer_get_pixel_ptr(&frames[active_frame_buffer_index], coord_x, coord_y);
+              if (p != NULL) {
+                pixel_buffer_shade_pixel(&frames[active_frame_buffer_index], p, primary_brush_size);
+              }
+#endif
+              pixel_buffer_add_rect_outline(&frames[active_frame_buffer_index], pixel, primary_brush_size, primary_brush_size, is_erasing);
+              break;
           }
         }
       }
 
 #if 0
+      // TODO (David): Add canera offset to render
       if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_UP] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_W]) {
         game->camera.y += pixel_size;
       } else if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_DOWN] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_S]) {
@@ -480,10 +487,10 @@ game_render(app_t* game)
       i32 x = posToGridWithOffsetX(game->mouse.x);
       i32 y = posToGridWithOffsetY(game->mouse.y);
 
-      SDL_Rect rect = { x - pixel_size / 2, y - pixel_size / 2, pixel_size, pixel_size };
+      SDL_Rect cursor_rect = { x - pixel_size / 2, y - pixel_size / 2, pixel_size, pixel_size };
 
-      rect.x = (WINDOW_WIDTH - GRID_WIDTH * pixel_size) / 2 + x * pixel_size;
-      rect.y = (WINDOW_HEIGHT - GRID_HEIGHT * pixel_size) / 2 + y * pixel_size;
+      cursor_rect.x = (WINDOW_WIDTH - GRID_WIDTH * pixel_size) / 2 + x * pixel_size;
+      cursor_rect.y = (WINDOW_HEIGHT - GRID_HEIGHT * pixel_size) / 2 + y * pixel_size;
 
       bool is_in_bounds =
         game->mouse.x > (WINDOW_WIDTH - GRID_WIDTH * pixel_size) / 2 &&
@@ -494,7 +501,21 @@ game_render(app_t* game)
       if (is_in_bounds) {
         SDL_Color cursor_color = C64_LIGHT_BLUE;
         SDL_SetRenderDrawColor(game->renderer, cursor_color.r, cursor_color.g, cursor_color.b, cursor_color.a);
-        SDL_RenderDrawRect(game->renderer, &rect);
+        SDL_RenderDrawRect(game->renderer, &cursor_rect);
+      }
+
+      // draw another rect for brush size preview apply offset
+      cursor_rect.x -= (primary_brush_size - 1) * pixel_size / 2;
+      cursor_rect.y -= (primary_brush_size - 1) * pixel_size / 2;
+      cursor_rect.w += (primary_brush_size - 1) * pixel_size;
+      cursor_rect.h += (primary_brush_size - 1) * pixel_size;
+
+      if (is_in_bounds) {
+        SDL_Color cursor_color = C64_LIGHT_BLUE;
+        SDL_SetRenderDrawColor(game->renderer, cursor_color.r, cursor_color.g, cursor_color.b, cursor_color.a);
+        SDL_RenderDrawRect(game->renderer, &cursor_rect);
+        // fill rect
+        SDL_SetRenderDrawColor(game->renderer, cursor_color.r, cursor_color.g, cursor_color.b, 180);
       }
 
       // black panel on bottom
@@ -934,7 +955,6 @@ game_render(app_t* game)
         if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_C]) {
           SDL_SetRenderTarget(game->renderer, NULL);
           SDL_SetTextureBlendMode(selected_tile_texture, SDL_BLENDMODE_BLEND);
-          SDL_SetTextureScaleMode(selected_tile_texture, SDL_ScaleModeNearest);
 
           SDL_Rect selected_tile_rect = { 0, 0, TILE_SIZE, TILE_SIZE };
           SDL_RenderCopy(game->renderer, selected_tile_texture, NULL, &selected_tile_rect);

@@ -174,8 +174,10 @@ bool dk_ui_icon_button(app_t* game, SDL_Rect rect, SDL_Color color, SDL_Texture*
 
 void dk_ui_text_input(app_t* game, SDL_Point position, char* placeholder, void(callback)(char*), bool* focused) {
 
-  int text_width = dk_text_width(&game->ui_text, game->raw_text_input_buffer);
-  int text_height = dk_text_height(&game->ui_text, game->raw_text_input_buffer);
+  char* text = "Hello, World";
+
+  int text_width = dk_text_width(&game->ui_text, text);
+  int text_height = dk_text_height(&game->ui_text, text);
 
   SDL_Color color = C64_YELLOW;
   SDL_SetRenderDrawColor(game->renderer, color.r, color.g, color.b, color.a);
@@ -199,10 +201,10 @@ void dk_ui_text_input(app_t* game, SDL_Point position, char* placeholder, void(c
   SDL_RenderFillRect(game->renderer, &rect);
 
   const int text_margin = 5;
-  if (strlen(game->raw_text_input_buffer) == 0) {
+  if (strlen(text) == 0) {
     dk_text_draw(&game->ui_text, placeholder, position.x + text_margin, position.y);
   } else {
-    dk_text_draw(&game->ui_text, game->raw_text_input_buffer, position.x + text_margin, position.y);
+    dk_text_draw(&game->ui_text, text, position.x + text_margin, position.y);
   }
 
   // Unerline Curso
@@ -211,7 +213,7 @@ void dk_ui_text_input(app_t* game, SDL_Point position, char* placeholder, void(c
 
   static int number_of_keys = 0;
   if (SDL_GetKeyboardState(&number_of_keys)[SDL_SCANCODE_RETURN]) {
-    callback(game->raw_text_input_buffer);
+    callback(text);
   }
 }
 
