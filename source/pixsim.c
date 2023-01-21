@@ -882,7 +882,6 @@ game_render(app_t* game)
         // selected tile the center of the screen
         SDL_Rect selected_tile_rect = { WINDOW_WIDTH / 2 - TILE_SIZE / 2, WINDOW_HEIGHT / 2 - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE };
 
-        SDL_SetTextureScaleMode(tileset->texture, SDL_ScaleModeNearest);
         SDL_SetTextureBlendMode(tileset->texture, SDL_BLENDMODE_BLEND);
 
         // making the copy of selected tile to another texture
@@ -892,10 +891,6 @@ game_render(app_t* game)
 
         // selected tile to screen
         SDL_SetRenderTarget(game->renderer, NULL);
-
-        // scaling the selected tile to 8x
-        SDL_SetTextureScaleMode(selected_tile_texture, SDL_ScaleModeNearest);
-        SDL_SetTextureBlendMode(selected_tile_texture, SDL_BLENDMODE_BLEND);
 
         selected_tile_rect.x = tileset->rect.w + TILE_SIZE;
         selected_tile_rect.y = 0;
