@@ -279,8 +279,7 @@ void
 pixel_buffer_save_png(pixel_buffer_t* buffer, const char* filename, u32 scale)
 {
 
-  SDL_Surface* surface = SDL_CreateRGBSurface(0, GRID_WIDTH * scale, GRID_HEIGHT * scale, 32, 0, 0, 0, 0);
-  SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 255, 255, 255, 255));
+  SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0, GRID_WIDTH * scale, GRID_HEIGHT * scale, 32, SDL_PIXELFORMAT_RGBA32);
 
   for (u32 i = 0; i < buffer->count; i++) {
     pixel_t pixel = buffer->pixels[i];
