@@ -133,6 +133,8 @@ game_init(app_t* game)
     exit(1);
   }
 
+  SDL_SetRenderDrawBlendMode(game->renderer, SDL_BLENDMODE_BLEND);
+
   load_tileset(game->renderer, tileset, "assets/icons/tileset.png");
 
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_GRID], (SDL_Point){7, 2});
@@ -166,6 +168,7 @@ game_init(app_t* game)
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_COPY_BUFFER], (SDL_Point){4, 3});
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_PASTE_BUFFER], (SDL_Point){15, 0});
 
+  get_icon_from_tileset(game->renderer, tileset, &icons[IOCN_EXPORT_IMAGE], (SDL_Point){7, 7});
 
   if (TTF_Init() != 0) {
     SDL_Log("TTF_Init Error: %s ", TTF_GetError());
@@ -329,6 +332,8 @@ game_update(app_t* game)
           .type = primary_pixel_type,
           .color = primary_color
         };
+
+        // pixel_buffer_auto_shade(&frames[active_frame_buffer_index], &pixel);
 
         if (is_in_bounds && !game->ui_focused) {
           if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_E]) {
@@ -658,6 +663,22 @@ game_render(app_t* game)
       SDL_Rect rect14 = { rect13.x + icon_size + icon_padding, icon_pos_y, icons[ICON_PASTE_BUFFER].rect.w, icons[ICON_PASTE_BUFFER].rect.h };
       if (dk_ui_icon_button(game, rect14, C64_LIGHT_BLUE, icons[ICON_PASTE_BUFFER].texture, &game->ui_focused)) {
         dk_clipboard_paste_to_buffer(clipboard, &frames[active_frame_buffer_index]);
+      }
+
+      // EXPORT IMAGE BUTTON
+      SDL_Rect rect15 = { rect14.x + icon_size + icon_padding, icon_pos_y, icons[IOCN_EXPORT_IMAGE].rect.w, icons[IOCN_EXPORT_IMAGE].rect.h };
+      if (dk_ui_icon_button(game, rect15, C64_LIGHT_BLUE, icons[IOCN_EXPORT_IMAGE].texture, &game->ui_focused)) {
+        char filename[255];
+        time_t t = time(NULL);
+
+        struct tm tm = *localtime(&t);
+        sprintf(filename, "pixsim-export-%d-%d-%d_%d-%d-%d.png", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        // pixel_buffer_save_to_png(&frames[active_frame_buffer_index], filename);
+        pixel_buffer_save_png(&frames[active_frame_buffer_index], filename, 1);
+
+        char str[512];
+        sprintf(str, "File Saved to %s", filename);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Saved!", (const char*)str, NULL);
       }
 
       // tooltip for save button

@@ -90,6 +90,9 @@ pixel_buffer_get_pixel(pixel_buffer_t* buffer, u32 col, u32 row);
 void
 pixel_buffer_set_pixel(pixel_buffer_t* buffer, pixel_t pixel);
 
+pixel_t
+pixel_buffer_get(pixel_buffer_t* buffer, u32 col, u32 row);
+
 #if defined(DK_PIXELBUFFER_IMPLEMENTATION)
 
 void
@@ -244,6 +247,26 @@ pixel_buffer_remove_all(pixel_buffer_t* buffer, u32 col, u32 row)
   }
 }
 
+pixel_t
+pixel_buffer_get(pixel_buffer_t* buffer, u32 col, u32 row)
+{
+  for (u32 i = 0; i < buffer->count; i++) {
+    if (buffer->pixels[i].col == col && buffer->pixels[i].row == row) {
+      return buffer->pixels[i];
+    }
+  }
+
+  pixel_t pixel = {
+    .col = col,
+    .row = row,
+    .color = { .r = 0, .g = 0, .b = 0, .a = 0 },
+    .type = 0,
+    .size = 1,
+  };
+
+  return pixel;
+}
+
 void
 pixel_buffer_draw(pixel_buffer_t* buffer, app_camera_t* camera, SDL_Renderer* renderer)
 {
@@ -262,16 +285,65 @@ pixel_buffer_draw(pixel_buffer_t* buffer, app_camera_t* camera, SDL_Renderer* re
     rect.y += camera->y;
 
     SDL_Color color = buffer->pixels[i].color;
-#if 0
-    if (buffer->pixels[i].row < GRID_HEIGHT) {
-      color.r = (u8)((f32)color.r * (f32)buffer->pixels[i].row / (f32)(GRID_HEIGHT));
-      color.g = (u8)((f32)color.g * (f32)buffer->pixels[i].row / (f32)(GRID_HEIGHT));
-      color.b = (u8)((f32)color.b * (f32)buffer->pixels[i].row / (f32)(GRID_HEIGHT));
+
+    //  SDL_Color color = buffer->pixels[i].color;
+    // if pixel do not have neighbor, draw it darker to make it look like a shadow
+    if (pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.a == 0 &&
+        pixel_buffer_get(buffer, buffer->pixels[i].col + 1, buffer->pixels[i].row).color.a == 0 &&
+        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row - 1).color.a == 0 &&
+        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row + 1).color.a == 0) {
+      color.r /= 2;
+      color.g /= 2;
+      color.b /= 2;
+    } else if (pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.a == 0 ||
+        pixel_buffer_get(buffer, buffer->pixels[i].col + 1, buffer->pixels[i].row).color.a == 0 ||
+        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row - 1).color.a == 0 ||
+        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row + 1).color.a == 0 ||
+          // their color is different
+          pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.r != color.r ||
+          pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.g != color.g ||
+          pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.b != color.b
+        ) {
+      color.r /= 1.5;
+      color.g /= 1.5;
+      color.b /= 1.5;
     }
-#endif
 
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &rect);
+  }
+}
+
+// TODO: this function is not working properly at the moment
+void
+pixel_buffer_auto_shade(pixel_buffer_t* buffer, pixel_t* pixel)
+{
+  for (u32 i = 0; i < buffer->count; i++) {
+
+    SDL_Color color = buffer->pixels[i].color;
+    // if pixel do not have neighbor, draw it darker to make it look like a shadow
+    if (pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.a == 0 &&
+        pixel_buffer_get(buffer, buffer->pixels[i].col + 1, buffer->pixels[i].row).color.a == 0 &&
+        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row - 1).color.a == 0 &&
+        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row + 1).color.a == 0) {
+      color.r /= 2;
+      color.g /= 2;
+      color.b /= 2;
+    } else if (pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.a == 0 ||
+        pixel_buffer_get(buffer, buffer->pixels[i].col + 1, buffer->pixels[i].row).color.a == 0 ||
+        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row - 1).color.a == 0 ||
+        pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row + 1).color.a == 0 ||
+          // their color is different
+          pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.r != color.r ||
+          pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.g != color.g ||
+          pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.b != color.b
+        ) {
+      color.r /= 1.5;
+      color.g /= 1.5;
+      color.b /= 1.5;
+    }
+
+    pixel->color = color;
   }
 }
 
