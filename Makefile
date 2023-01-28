@@ -8,7 +8,7 @@ BIN 						:= pixsim
 CFDEBUG 				:= -g
 CFOPT 					:= -O3
 CFLAGS					:= -std=c99 $(CFDEBUG) -Wall -Wno-unused-function -Wno-switch -Wextra -pedantic -Wconversion
-CLIBS 					:= -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+CLIBS 					:= -lSDL2 -lSDL2_image -lSDL2_ttf
 
 ifeq ($(OS), darwin)
 	PLATFORM			:= macosx

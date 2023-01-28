@@ -339,7 +339,9 @@ pixel_buffer_draw(pixel_buffer_t* buffer, app_camera_t* camera, SDL_Renderer* re
     SDL_Color color = buffer->pixels[i].color;
 
 #if 1
-    // if pixel do not have neighbor, draw it darker to make it look like a shadow
+    //
+    //if pixel do not have neighbor, we are making it darker to make it look like a outline
+    //
     if (pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.a == 0 &&
         pixel_buffer_get(buffer, buffer->pixels[i].col + 1, buffer->pixels[i].row).color.a == 0 &&
         pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row - 1).color.a == 0 &&
@@ -351,7 +353,6 @@ pixel_buffer_draw(pixel_buffer_t* buffer, app_camera_t* camera, SDL_Renderer* re
         pixel_buffer_get(buffer, buffer->pixels[i].col + 1, buffer->pixels[i].row).color.a == 0 ||
         pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row - 1).color.a == 0 ||
         pixel_buffer_get(buffer, buffer->pixels[i].col, buffer->pixels[i].row + 1).color.a == 0 ||
-          // their color is different
           pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.r != color.r ||
           pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.g != color.g ||
           pixel_buffer_get(buffer, buffer->pixels[i].col - 1, buffer->pixels[i].row).color.b != color.b
@@ -452,21 +453,22 @@ pixel_buffer_set_pixel(pixel_buffer_t* buffer, pixel_t pixel)
 Uint32
 get_pixel(SDL_Surface* surface, u32 x, u32 y)
 {
-  u32 bpp = surface->format->BytesPerPixel;
-  u8* p = (u8*)surface->pixels + y * surface->pitch + x * bpp;
+  u32 bytes_per_pixel = surface->format->BytesPerPixel;
+  u8* pixel = (u8*)surface->pixels + y * surface->pitch + x * bytes_per_pixel;
 
-  switch (bpp) {
+  switch (bytes_per_pixel) {
     case 1:
-      return *p;
+      return *pixel;
     case 2:
-      return *(u16*)p;
+      return *(u16*)pixel;
     case 3:
-      if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-        return p[0] << 16 | p[1] << 8 | p[2];
-      else
-        return p[0] | p[1] << 8 | p[2] << 16;
+      if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+        return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
+      } else {
+        return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
+      }
     case 4:
-      return *(u32*)p;
+      return *(u32*)pixel;
     default:
       return 0;
   }

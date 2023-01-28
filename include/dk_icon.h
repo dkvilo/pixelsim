@@ -103,29 +103,22 @@ load_tileset(SDL_Renderer* renderer, tileset_t* tileset, char* path)
 void get_icon_from_tileset(SDL_Renderer* renderer, tileset_t* tileset, icon_t* icon, SDL_Point coords)
 {
 
-  // icons are 16x16
   icon->rect.w = 16;
   icon->rect.h = 16;
 
-  // calculate the x and y position of the icon
   icon->rect.x = coords.x * 16;
   icon->rect.y = coords.y * 16;
 
-  // create a new texture
   icon->texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 16, 16);
 
-  // set the render target to the new texture
   SDL_SetRenderTarget(renderer, icon->texture);
 
-  // copy the icon from the tileset to the new texture
   SDL_RenderCopy(renderer, tileset->texture, &icon->rect, NULL);
 
-  // set the render target back to the screen
   SDL_SetRenderTarget(renderer, NULL);
 
   SDL_SetTextureBlendMode(icon->texture, SDL_BLENDMODE_BLEND);
 
-  // Scaling up to 32x32
   icon->rect.w = 32;
   icon->rect.h = 32;
 
