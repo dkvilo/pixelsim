@@ -311,6 +311,10 @@ game_update(app_t* game)
 
       SDL_GetMouseState(&game->mouse.x, &game->mouse.y);
 
+      // apply camera offset to mouse position
+      game->mouse.x -= game->camera.x;
+      game->mouse.y -= game->camera.y;
+
       bool is_in_bounds =
           game->mouse.x > (WINDOW_WIDTH - GRID_WIDTH * pixel_size) / 2 &&
           game->mouse.x < (WINDOW_WIDTH + GRID_WIDTH * pixel_size) / 2 &&
@@ -370,7 +374,7 @@ game_update(app_t* game)
         }
       }
 
-#if 0
+#if 1
       // TODO (David): Add canera offset to render
       if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_UP] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_W]) {
         game->camera.y += pixel_size;
@@ -484,6 +488,7 @@ game_render(app_t* game)
       pixel_buffer_draw(&frames[active_frame_buffer_index], &game->camera, game->renderer);
 
       SDL_RenderDrawRect(game->renderer, &canvas_rect);
+
       i32 x = posToGridWithOffsetX(game->mouse.x);
       i32 y = posToGridWithOffsetY(game->mouse.y);
 
@@ -491,6 +496,9 @@ game_render(app_t* game)
 
       cursor_rect.x = (WINDOW_WIDTH - GRID_WIDTH * pixel_size) / 2 + x * pixel_size;
       cursor_rect.y = (WINDOW_HEIGHT - GRID_HEIGHT * pixel_size) / 2 + y * pixel_size;
+
+      cursor_rect.x += game->camera.x;
+      cursor_rect.y += game->camera.y;
 
       bool is_in_bounds =
         game->mouse.x > (WINDOW_WIDTH - GRID_WIDTH * pixel_size) / 2 &&
@@ -504,7 +512,7 @@ game_render(app_t* game)
         SDL_RenderDrawRect(game->renderer, &cursor_rect);
       }
 
-      // draw another rect for brush size preview apply offset
+      // draw another rect for brush size preview
       cursor_rect.x -= (primary_brush_size - 1) * pixel_size / 2;
       cursor_rect.y -= (primary_brush_size - 1) * pixel_size / 2;
       cursor_rect.w += (primary_brush_size - 1) * pixel_size;
