@@ -311,15 +311,16 @@ game_update(app_t* game)
 
       SDL_GetMouseState(&game->mouse.x, &game->mouse.y);
 
-      // apply camera offset to mouse position
-      game->mouse.x -= game->camera.x;
-      game->mouse.y -= game->camera.y;
-
       bool is_in_bounds =
           game->mouse.x > (WINDOW_WIDTH - GRID_WIDTH * pixel_size) / 2 &&
           game->mouse.x < (WINDOW_WIDTH + GRID_WIDTH * pixel_size) / 2 &&
           game->mouse.y > (WINDOW_HEIGHT - GRID_HEIGHT * pixel_size) / 2 &&
           game->mouse.y < (WINDOW_HEIGHT + GRID_HEIGHT * pixel_size) / 2;
+
+			if (is_in_bounds) {
+        game->mouse.x -= game->camera.x;
+        game->mouse.y -= game->camera.y;
+			}
 
       if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
 
