@@ -1,63 +1,41 @@
-## Building instructions
+# Pixel Simulator - v0.0.1
 
-Application was developed and tested on Linux and Mac (Silicon) platforms. Windows build system support is coming soon.
+The goal is to create a pixel art editor that can be used to create interactive pixel art. At this point, The interactive pixel art can be imported/exported as a binary file. Also static pixel art can be exported as PNG.
 
-Application is dinamically linked to SDL2, SDL2_image and SDL2_ttf libraries.
-For now, only Linux and Mac builds are supported. Windows build is coming soon.
+## Demo Video
 
-If you want to modify the code and make your own software, I strongly recommend you to use platform specific IDEs like Visual Studio for Windows, Xcode for Mac and CLion for Linux. And ship the application with the libraries included, or build the application with static linking.
+[![Pixel Simulator Demo](https://img.youtube.com/vi/5_O9FClM6Xw/0.jpg)](https://www.youtube.com/watch?v=5_O9FClM6Xw)
 
-### Linux
-
-```bash
-  # Install dependencies (sdl2, sdl2_image, sdl2_ttf)
-  sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
-  make clean build_linux
-```
-
-### Mac (Intel and m1)
-
-```bash
-  brew install sdl2 sdl2_image sdl2_ttf
-  make clean build_macosx
-```
-
-### Windows
-
-- coming soon
-
-## License For Source Code
-
-You are granted a perpetual, irrevocable, non-exclusive, royalty-free license to use, copy, modify, and distribute this software in the form of binary. You may not remove copyright, trademark, or other notices from the source code.
-
-You are allowed to create your own software using this source code. You are not allowed to re sell the source code.
-
-You are allowed to sell your own software that was created using this source code, in a form of binary.
-
-## License For Assets
-
-Please Reffer to the LICENSE.txt file in the assets folder.
-
-## Credits and dependencies
-
-- [SDL2](https://www.libsdl.org/)
-- [SDL2_image](https://www.libsdl.org/projects/SDL_image/)
-- [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/)
-
-# Pixel Simulator Studio
-
-Pixel Types:
+### Pixel Types
 
 - Water
 - Sand
 - Fire
 
-Features for v0.1:
+### Brush Types
 
-- Dynamic Drawing and Exproting Pixelart as PSB (Pixel Simulator Binary)
-- Static Drawing and Exproting Pixelart as PNG
-- Import/Export Interactive Frame
-- Import PNG as Interactive Frame
+- Eraser (Hold 'e' while drawing on canvas)
+- Filled Cercle
+- Cross
+- Filled Quad
+- Quad
+
+### Key Bindings for Demo Application
+
+- **Mouse Left Button** - Drawing on selected canvas
+- **E + Mouse Left Button** - Erasing pixels from canvas (You need to Hold on E while drawing)
+- **\[** - Zoom in on canvas
+- **\]** - Zoom out on canvas
+- **Scroll wheel** - change brush size (You can use dedicated buttons on the bottom of the panel as well to change the brush size)
+- Loading **PSB** files can be done by just dragging and dropping them on the canvas
+- **Space** - Will open Tileset viewer, You can hover over the specific cell to sample the coordinates
+
+### Features for v0.1:
+
+- Dynamic Drawing and Exporting Pixelart as PSB (Pixel Simulator Binary)
+- Static Drawing and Exporting Pixelart as PNG
+- Import/Export Interactive Frame (PSB)
+- Import PNG as an Interactive Frame
 - Export Buffer as PNG
 - Multiple Frames/Canvas
 - Multiple Brushes
@@ -65,13 +43,57 @@ Features for v0.1:
 - Canvas Zoom
 - Tileviewer
 
-Possiable feature list that may will be added in v1.0:
+### Possible feature list that may be added in v1.0:
 
-- [ ] More pixel types / Custom Pixel Creation
-- [ ] More brushes / Custom Brushe Creation
-- [ ] Color picker
-- [ ] Layering for frame
-- [ ] Lua scripting to define different behaviors for pixels
-- [ ] HTML5/Webassembly build support (for exported runtime)
-- [ ] Tile editor
-- [ ] Text editor for scripting
+- More pixel types / Custom Pixel Creation
+- More brushes / Custom Brushe Creation
+- Color picker
+- Layering for frame
+- Lua scripting to define different behaviors for pixels
+- HTML5/Webassembly build support (for exported runtime)
+- Tile editor
+- Text editor for scripting
+
+## Building instructions
+
+The application was developed and tested on Linux and Mac (Silicon) platforms. Windows build system support is coming soon.
+
+The application is dynamically linked to SDL2, SDL2_image, and SDL2_ttf libraries.
+
+For now, only Linux and Mac builds are supported. Windows build is coming soon.
+
+If you want to modify the code and make your own software, I strongly recommend you use platform-specific IDEs like Visual Studio for Windows, Xcode for Mac, and CLion for Linux. And ship the application with the libraries included, or build the application with static linking.
+
+#### Linux
+
+Install dependencies (sdl2, sdl2_image, sdl2_ttf)
+
+```
+sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
+make clean build_linux
+```
+
+#### Mac (Intel and m1)
+
+```
+brew install sdl2 sdl2_image sdl2_ttf
+make clean build_macosx
+```
+
+#### Windows
+
+```
+Coming soon
+```
+
+### License For Assets
+
+Please Refer to the LICENSE.txt file in the assets folder.
+
+### Credits and dependencies
+
+[SDL2 - Simple DirectMedia Layer](https://www.libsdl.org/)
+
+[SDL2 Image](https://www.libsdl.org/projects/SDL_image/)
+
+[SDL2 TTF](https://www.libsdl.org/projects/SDL_ttf/)
