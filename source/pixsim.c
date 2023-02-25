@@ -105,11 +105,9 @@ game_init(app_t* game)
     exit(1);
   }
 
-  // Get the current display mode
   static SDL_DisplayMode display_mode;
   SDL_GetCurrentDisplayMode(0, &display_mode);
 
-  // Update the window size to match the display size
   WINDOW_WIDTH = display_mode.w;
   WINDOW_HEIGHT = display_mode.h;
 
@@ -362,21 +360,15 @@ game_update(app_t* game)
             case BRUSH_ERASER:
               pixel_buffer_clear(&frames[active_frame_buffer_index]);
             case BRUSH_RECT_OUTLINE:
-#if 0
-              // TODO (David): Add brush type for shading pixels
               pixel_t *p = pixel_buffer_get_pixel_ptr(&frames[active_frame_buffer_index], coord_x, coord_y);
               if (p != NULL) {
                 pixel_buffer_shade_pixel(&frames[active_frame_buffer_index], p, primary_brush_size);
               }
-#endif
-              pixel_buffer_add_rect_outline(&frames[active_frame_buffer_index], pixel, primary_brush_size, primary_brush_size, is_erasing);
               break;
           }
         }
       }
 
-#if 1
-      // TODO (David): Add canera offset to render
       if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_UP] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_W]) {
         game->camera.y += pixel_size;
       } else if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_DOWN] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_S]) {
@@ -386,7 +378,6 @@ game_update(app_t* game)
       } else if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_RIGHT] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_D]) {
         game->camera.x -= pixel_size;
       }
-#endif
 
       if (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LEFTBRACKET]) {
         if (pixel_size < 100) {
@@ -457,7 +448,6 @@ game_render(app_t* game)
         GRID_HEIGHT * pixel_size
       };
 
-      // translate camera rect with camera
       canvas_rect.x += game->camera.x;
       canvas_rect.y += game->camera.y;
 
@@ -513,7 +503,6 @@ game_render(app_t* game)
         SDL_RenderDrawRect(game->renderer, &cursor_rect);
       }
 
-      // draw another rect for brush size preview
       cursor_rect.x -= (primary_brush_size - 1) * pixel_size / 2;
       cursor_rect.y -= (primary_brush_size - 1) * pixel_size / 2;
       cursor_rect.w += (primary_brush_size - 1) * pixel_size;
@@ -523,7 +512,6 @@ game_render(app_t* game)
         SDL_Color cursor_color = C64_LIGHT_BLUE;
         SDL_SetRenderDrawColor(game->renderer, cursor_color.r, cursor_color.g, cursor_color.b, cursor_color.a);
         SDL_RenderDrawRect(game->renderer, &cursor_rect);
-        // fill rect
         SDL_SetRenderDrawColor(game->renderer, cursor_color.r, cursor_color.g, cursor_color.b, 180);
       }
 
@@ -572,7 +560,6 @@ game_render(app_t* game)
       static i32 icon_pos_y = 10;
       static i32 icon_offset_x = 0;
 
-      // draw panel for icons
       SDL_Rect panel_rect = { 0, 0, WINDOW_WIDTH, icon_size + icon_padding * 2 };
       SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255);
       SDL_RenderFillRect(game->renderer, &panel_rect);
@@ -643,7 +630,6 @@ game_render(app_t* game)
 
         if (buttonid == 0) {
 
-          // Ask to save
           SDL_MessageBoxButtonData buttons[] = {
             { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 0, "Yes" },
             { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 1, "No" },
@@ -703,7 +689,6 @@ game_render(app_t* game)
 
         struct tm tm = *localtime(&t);
         sprintf(filename, "pixsim-export-%d-%d-%d_%d-%d-%d.png", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-        // pixel_buffer_save_to_png(&frames[active_frame_buffer_index], filename);
         pixel_buffer_save_png(&frames[active_frame_buffer_index], filename, 1);
 
         char str[512];
@@ -711,51 +696,43 @@ game_render(app_t* game)
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Saved!", (const char*)str, NULL);
       }
 
-      // tooltip for save button
       {
         bool is_visible = false;
         dk_ui_tooltip(game, rect8, "Save Buffer", &is_visible);
       }
 
-      // tooltip for clear button
       {
         bool is_visible = false;
         dk_ui_tooltip(game, rect9, "Clear Canvas", &is_visible);
       }
 
-      // tooltip for pause button
       {
         bool is_visible = false;
         dk_ui_tooltip(game, rect11, "Stop Simulation", &is_visible);
       }
 
-      // tooltip for play button
       {
         bool is_visible = false;
         dk_ui_tooltip(game, rect7, "Play Simulation", &is_visible);
       }
 
-      // tooltip for exit button
       {
         bool is_visible = false;
         dk_ui_tooltip(game, rect12, "Quit Program", &is_visible);
       }
 
-      // tooltip for pixel type
       {
         bool is_visible = false;
         char* str = "Enable/Disable Grid";
         dk_ui_tooltip(game, rect10, str, &is_visible);
       }
 
-      // tooltip for copy button
       {
         bool is_visible = false;
         char* str = "Copy Buffer";
         dk_ui_tooltip(game, rect13, str, &is_visible);
       }
 
-      // tooltip for paste button
       {
         bool is_visible = false;
         char* str = "Paste In Buffer";
@@ -792,7 +769,6 @@ game_render(app_t* game)
       dk_ui_button(game, aboutMe, C64_BLACK, "v0.1", &game->ui_focused);
 
       int brush_icon_margin = 10;
-      // draw circle brush icon
       {
         SDL_Rect rect = { 0 };
 
@@ -812,7 +788,6 @@ game_render(app_t* game)
         }
       }
 
-      // draw line brush icon
       {
         SDL_Rect rect = { 0 };
 
@@ -832,7 +807,6 @@ game_render(app_t* game)
         }
       }
 
-      // draw rect brush iocn
       {
         SDL_Rect rect = { 0 };
 
@@ -852,7 +826,6 @@ game_render(app_t* game)
         }
       }
 
-      // draw rect brush iocn
       {
         SDL_Rect rect = { 0 };
 
@@ -931,17 +904,13 @@ game_render(app_t* game)
         SDL_SetRenderDrawColor(game->renderer, color.r, color.g, color.b, color.a);
         SDL_RenderDrawRect(game->renderer, &tile_rect);
 
-        // selected tile the center of the screen
         SDL_Rect selected_tile_rect = { WINDOW_WIDTH / 2 - TILE_SIZE / 2, WINDOW_HEIGHT / 2 - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE };
-
         SDL_SetTextureBlendMode(tileset->texture, SDL_BLENDMODE_BLEND);
 
-        // making the copy of selected tile to another texture
         SDL_Texture* selected_tile_texture = SDL_CreateTexture(game->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, TILE_SIZE, TILE_SIZE);
         SDL_SetRenderTarget(game->renderer, selected_tile_texture);
         SDL_RenderCopy(game->renderer, tileset->texture, &tile_rect, NULL);
 
-        // selected tile to screen
         SDL_SetRenderTarget(game->renderer, NULL);
 
         SDL_SetTextureBlendMode(selected_tile_texture, SDL_BLENDMODE_BLEND);
@@ -951,7 +920,6 @@ game_render(app_t* game)
         selected_tile_rect.w = TILE_SIZE * 8;
         selected_tile_rect.h = TILE_SIZE * 8;
 
-        // border around selected tile
         SDL_SetRenderDrawColor(game->renderer, color.r, color.g, color.b, color.a);
         SDL_RenderDrawRect(game->renderer, &selected_tile_rect);
 
