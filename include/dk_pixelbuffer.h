@@ -2,8 +2,14 @@
 #define DK_PIXELBUFFER_H
 
 #include <assert.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+
+// #if !defined(SDL_IMAGE_H_)
+// #include <SDL2/SDL_image.h>
+// #endif // SDL_IMAGE_H_
+
+// #if !defined(SDL_h_)
+// #include <SDL2/SDL.h>
+// #endif // SDL_h_
 
 #include "dk_app.h"
 #include "dk_macros.h"
@@ -11,6 +17,7 @@
 #include "dk.h"
 
 typedef enum {
+  PIXEL_TYPE_EMPTY,
   PIXEL_TYPE_WATER,
   PIXEL_TYPE_SAND,
   PIXEL_TYPE_FIRE,
@@ -126,18 +133,20 @@ pixel_buffer_add(pixel_buffer_t* buffer, pixel_t pixel)
     return;
   }
 
-  // if pixel already exists, swap it with the last pixel in the buffer
-  for (u32 i = 0; i < buffer->count; i++) {
-    if (buffer->pixels[i].col == pixel.col && buffer->pixels[i].row == pixel.row) {
-      buffer->pixels[i] = buffer->pixels[buffer->count - 1];
-      buffer->count--;
-      break;
-    }
-  }
+  if (buffer->count < GRID_HEIGHT * GRID_WIDTH) {
 
-  buffer->pixels = realloc(buffer->pixels, sizeof(pixel_t) * (buffer->count + 1));
-  buffer->pixels[buffer->count] = pixel;
-  buffer->count++;
+    for (u32 i = 0; i < buffer->count; i++) {
+      if (buffer->pixels[i].col == pixel.col && buffer->pixels[i].row == pixel.row) {
+        buffer->pixels[i] = buffer->pixels[buffer->count - 1];
+        buffer->count--;
+        break;
+      }
+    }
+
+    buffer->pixels = realloc(buffer->pixels, sizeof(pixel_t) * (buffer->count + 1));
+    buffer->pixels[buffer->count] = pixel;
+    buffer->count++;
+  }
 }
 
 void
@@ -280,7 +289,6 @@ pixel_buffer_remove(pixel_buffer_t* buffer, u32 index)
   if (index < buffer->count) {
     buffer->pixels[index] = buffer->pixels[buffer->count - 1];
     buffer->count--;
-    buffer->pixels = realloc(buffer->pixels, sizeof(pixel_t) * buffer->count);
   }
 }
 
@@ -602,11 +610,11 @@ update_pixel_simulation(pixel_buffer_t* buffer)
           if (right_pixel == NULL) {
             pixel->col++;
           }
-        }
+          }
 
         if (below_pixel == PIXEL_TYPE_WATER) {
           below_pixel->type = PIXEL_TYPE_SAND;
-        }
+          }
 
       } else if (PIXEL_TYPE_WATER == pixel->type) {
 

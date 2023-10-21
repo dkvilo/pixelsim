@@ -2,8 +2,14 @@
 #define DK_TEXT_H
 
 #include "dk.h"
+
+#if !defined(SDL_h_)
 #include <SDL2/SDL.h>
+#endif // SDL_h_
+
+#if !defined(SDL_TTF_H_)
 #include <SDL2/SDL_ttf.h>
+#endif // SDL_TTF_H_
 
 typedef struct
 {

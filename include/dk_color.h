@@ -1,7 +1,9 @@
 #if !defined(DK_COLOR_H)
 #define DK_COLOR_H
 
+#if !defined(SDL_h_)
 #include <SDL2/SDL.h>
+#endif // SDL_h_
 
 #define C64_COLOR_COUNT 32
 #define C64_BLACK (SDL_Color){ 0, 0, 0, 255 }

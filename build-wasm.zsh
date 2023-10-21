@@ -1,0 +1,1 @@
+emcc -Iinclude source/*.c `pkg-config sdl2 --libs --cflags` -lSDL2_image -lSDL2_ttf -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s ASSERTIONS -s ALLOW_MEMORY_GROWTH -s SDL2_IMAGE_FORMATS='["png"]' -s EXPORTED_RUNTIME_METHODS="['ccall']" -s USE_SDL_TTF=2 --preload-file assets/ --shell-file shell.html -DPLATFORM_WEB -Os -Wall -Wno-unused-function -Wno-switch -o index.html

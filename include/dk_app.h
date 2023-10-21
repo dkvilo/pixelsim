@@ -1,7 +1,10 @@
 #if !defined(DK_APP_H)
 #define DK_APP_H
 
+#if !defined(SDL_h_)
 #include <SDL2/SDL.h>
+#endif // SDL_h_
+
 #include "dk_text.h"
 
 typedef struct

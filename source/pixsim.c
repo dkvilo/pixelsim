@@ -1,15 +1,34 @@
 #include "dk.h"
 
 #if defined(__APPLE__) || defined(__MACH__)
+#if !defined(SDL_h_)
 #include <SDL2/SDL.h>
+#endif
+
+#if !defined(SDL_TTF_H_)
 #include <SDL2/SDL_ttf.h>
+#endif
+
+#if !defined(SDL_IMAGE_H_)
 #include <SDL2/SDL_image.h>
 #endif
 
+#endif
+
 #if defined(__linux__) || defined(__unix__)
+
+#if !defined(SDL_h_)
 #include <SDL.h>
+#endif
+
+#if !defined(SDL_TTF_H_)
 #include <SDL_ttf.h>
+#endif
+
+#if !defined(SDL_IMAGE_H_)
 #include <SDL_image.h>
+#endif
+
 #endif
 
 #include <stdio.h>
@@ -17,6 +36,10 @@
 #include <time.h>
 #include <unistd.h>
 #include <string.h>
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 #define DK_TEXT_IMPLEMENTATION
 #include "dk_text.h"
@@ -58,12 +81,14 @@ enum GameState
   STATE_COUNT
 };
 
+static app_t game = { 0 };
+
 static tileset_t* tileset = NULL;
 
 static icon_t *icons = NULL;
 SDL_Color* DK_PALLETE = NULL;
 
-SDL_Color primary_color = C64_BROWN;
+SDL_Color primary_color = C64_BLUE;
 SDL_Color secondary_color = C64_BLACK;
 
 u8 pixel_size = GRID_CELL_SIZE;
@@ -111,7 +136,7 @@ game_init(app_t* game)
   WINDOW_WIDTH = display_mode.w;
   WINDOW_HEIGHT = display_mode.h;
 
-  u32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP;
+  u32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL /*| SDL_WINDOW_FULLSCREEN_DESKTOP*/;
   game->window = SDL_CreateWindow("Pixel Simulator - v0.1",
                                   SDL_WINDOWPOS_CENTERED,
                                   SDL_WINDOWPOS_CENTERED,
@@ -156,7 +181,6 @@ game_init(app_t* game)
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_BRUSH_CROSS], (SDL_Point){0, 2});
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_BRUSH_RECT], (SDL_Point){15, 3});
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_BRUSH_CIRCLE], (SDL_Point){13, 2});
-  get_icon_from_tileset(game->renderer, tileset, &icons[ICON_BRUSH_RECT_OUTLINE], (SDL_Point){3, 7});
 
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_PIXEL_TYPE_WATER], (SDL_Point){7, 15});
   get_icon_from_tileset(game->renderer, tileset, &icons[ICON_PIXEL_TYPE_SAND], (SDL_Point){7, 15});
@@ -360,10 +384,10 @@ game_update(app_t* game)
             case BRUSH_ERASER:
               pixel_buffer_clear(&frames[active_frame_buffer_index]);
             case BRUSH_RECT_OUTLINE:
-              pixel_t *p = pixel_buffer_get_pixel_ptr(&frames[active_frame_buffer_index], coord_x, coord_y);
-              if (p != NULL) {
-                pixel_buffer_shade_pixel(&frames[active_frame_buffer_index], p, primary_brush_size);
-              }
+              // pixel_t *p = pixel_buffer_get_pixel_ptr(&frames[active_frame_buffer_index], coord_x, coord_y);
+              // if (p != NULL) {
+              //   pixel_buffer_shade_pixel(&frames[active_frame_buffer_index], p, primary_brush_size);
+              // }
               break;
           }
         }
@@ -826,25 +850,6 @@ game_render(app_t* game)
         }
       }
 
-      {
-        SDL_Rect rect = { 0 };
-
-        rect.x = WINDOW_WIDTH - 158 - brush_icon_margin;
-        rect.y = 10;
-
-        rect.h = 32;
-        rect.w = 32;
-
-        SDL_Color color = C64_WHITE;
-        if (primary_brush_type == BRUSH_RECT_OUTLINE) {
-          color = C64_LIGHT_GREEN;
-        }
-
-        if (dk_ui_icon_button(game, rect, color, icons[ICON_BRUSH_RECT_OUTLINE].texture, &game->ui_focused)) {
-          primary_brush_type = BRUSH_RECT_OUTLINE;
-        }
-      }
-
       for (int i = 0; i < frame_count; ++i) {
         SDL_Rect rect = { 0 };
         rect.w = 32;
@@ -880,9 +885,10 @@ game_render(app_t* game)
           SDL_RenderFillRect(game->renderer, &rect);
         }
 
-        int icon_offset = ((int)ICON_BRUSH_RECT_OUTLINE + (i + 1));
+        int icon_offset = ((int)ICON_BRUSH_CIRCLE + (i + 1));
         if (dk_ui_icon_button(game, rect, color, icons[icon_offset].texture, &game->ui_focused)) {
           primary_pixel_type = i;
+          primary_color = pixel_type_to_color(i);
         }
       }
 
@@ -961,16 +967,13 @@ game_render(app_t* game)
   SDL_RenderPresent(game->renderer);
 }
 
-int
-main(int argc, char const* argv[])
+
+#if defined(PLATFORM_WEB)
+void main_loop()
+#else
+void main_loop()
+#endif
 {
-  srand((unsigned int)time(NULL));
-
-  app_t game;
-  game_init(&game);
-
-  while (game.running) {
-
     game.stats.FrameCount++;
     game.stats._currentTime = SDL_GetTicks();
     game.stats.DeltaTime = game.stats._currentTime - game.stats._lastTime;
@@ -994,7 +997,21 @@ main(int argc, char const* argv[])
     if (frame_time < target_frame_time) {
       SDL_Delay(target_frame_time - frame_time);
     }
+}
+
+int
+main(int argc, char const* argv[])
+{
+
+  game_init(&game);
+
+#if defined(PLATFORM_WEB)
+  emscripten_set_main_loop(main_loop, 0, 1);
+#else
+  while (game.running) {
+    main_loop();
   }
+#endif
 
   game_destroy(&game);
 
