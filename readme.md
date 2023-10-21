@@ -1,6 +1,10 @@
 # Pixel Simulator - v0.0.1
 
-The goal is to create a pixel art editor that can be used to create interactive pixel art. At this point, The interactive pixel art can be imported/exported as a binary file. Also static pixel art can be exported as PNG.
+The goal is to create a pixel art editor that can be used to create interactive pixel art. At this point, The interactive pixel art can be imported/exported as a binary file. Also, static pixel art can be exported as PNG.
+
+## Wasm Demo
+The demo has no "Web" adaptation, which could be rough sometimes. Resizing window and such things are not handled at all. other than that everything works as intended.
+[https://dkvilo.github.io/pixelsim/](https://dkvilo.github.io/pixelsim/)
 
 ## Demo Video
 
